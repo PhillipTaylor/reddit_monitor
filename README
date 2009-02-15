@@ -17,18 +17,20 @@ The requirements for this application are:
 
 
 --DOWNLOADING--
-To get the program you can either get download the
+To get the program you can either download the
 source code using the "download" button above or you
-can use the git link.
+can use the git link. There are no binaries and no
+need for them.
 
 --INSTALLATION AND SETUP--
 There is nothing to compile and it runs from your
 home directory.
 
-<b>IMPORTANT NOTE FOR 32 BIT USERS.</b>
-You will need to delete or move pytrayicon.so out of the
-way (because it's the 64 bit version) and rename
-pytrayicon32.so to pytrayicon.so
+IMPORTANT NOTE FOR 32 BIT USERS:
+	You will need to delete or move pytrayicon.so out of the
+	way (because it's the 64 bit version) and rename
+	pytrayicon32.so to pytrayicon.so
+
 
 --USAGE--
 
