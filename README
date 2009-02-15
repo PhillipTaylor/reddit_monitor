@@ -7,8 +7,7 @@ have new messages on Reddit. It's pretty simple and
 straight forward. Here is an example of what it looks
 like:
 
-<<HYPERLINK>>
-
+http://github.com/PhillipTaylor/reddit_monitor/raw/a0ad84b5fb93590be7e2324d7e789ee02952009e/Demo.png
 
 
 --REQUIREMENTS--
@@ -19,15 +18,9 @@ The requirements for this application are:
 
 
 --DOWNLOADING--
-To get the program you can either get download this
-source code zip file:
-
-<<SNAPSHOT>>
-
-or you can check out this git repository:
-
-git://github.com/philliptaylor/reddit_monitor.git
-
+To get the program you can either get download the
+source code using the "download" button above or you
+can use the git link.
 
 --INSTALLATION AND SETUP--
 There is nothing to compile and it runs from your
