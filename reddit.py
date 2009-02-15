@@ -65,13 +65,9 @@ class Reddit:
 						 #and you have neither.
 						""")
 
-		self.logged_in = False
 		self.user = None
 
 	def login(self, user, passwd):
-
-		if self.logged_in:
-			return
 
 		self.user = user
 
@@ -87,10 +83,8 @@ class Reddit:
 			self.urlopen(req).read()
 		except Exception, e:
 			print "F*CK: %s", e.message
-			self.logged_in = False
 			return False
 
-		self.logged_in = True
 		return True
 
 	#if user == None then it tells you your own karma (provided you called login())
@@ -121,9 +115,6 @@ class Reddit:
 
 
 	def has_new_mail(self):
-
-		if not self.logged_in:
-			raise RedditNotLoggedInException('YOU ARE NOT LOGGED IN')
 
 		profile_page_to_fetch = REDDIT_PROFILE_PAGE % self.user
 

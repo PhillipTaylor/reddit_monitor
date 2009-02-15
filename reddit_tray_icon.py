@@ -112,9 +112,10 @@ class RedditTrayIcon():
 
 	def __init__(self, user, password, interval):
 
-		self.user = user
-		self.password = password
+		self.reddit = reddit.Reddit()
+		self.reddit.login(user, password)
 		self.interval = interval
+
 
 		#create the tray icon
 		self.tray = pytrayicon.TrayIcon('Reddit')
@@ -188,9 +189,6 @@ class RedditTrayIcon():
 		
 		while gtk.events_pending():
 			gtk.main_iteration(True)
-
-		self.reddit = reddit.Reddit()
-		self.reddit.login(self.user, self.password)
 
 		if self.reddit.has_new_mail():
 			self.icon_image.set_from_pixbuf(self.new_mail_icon)
