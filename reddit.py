@@ -135,7 +135,16 @@ class Reddit:
 			print "Error is related to reading a profile page: %s", e.message
 			raise e
 
-		return (page_contents.find('/static/mailgray.png') == -1)
+		if page_contents.find('/static/mailgray.png') == -1:
+			if page_contents.find('/static/mail.png') == -1:
+				dump = open('.dump','w')
+				dump.write(page_contents)
+				dump.close()
+				raise Exception('Bad page returned')
+			else:
+				return True
+		else:
+			return False
 
 def run():
 

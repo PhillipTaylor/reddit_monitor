@@ -13,13 +13,9 @@ import reddit
 NOTHING_HAPPENING_ICON = 'icons/reddit.png'
 NEW_MAIL_ICON          = 'icons/new_mail.png'
 BUSY_ICON              = 'icons/busy.gif'
-
-#I'm going to have an OK button and a Cancel button
-#and I have no idea which way they go around so this
-#variable is to prove I thought about the issue even
-#if I'm wrong. Also, I probably have bigger problems
-#than this.
-FLIP_MODE_REVERSE = False
+DEFAULT_USERNAME       = ''
+DEFAULT_PASSWORD       = '' #obvious security flaw if you fill this in.
+DEFAULT_CHECK_INTERVAL = 10 #minutes
 
 class RedditConfigWindow:
 
@@ -27,8 +23,6 @@ class RedditConfigWindow:
 
 		self.user = None
 		self.passwd = None
-		self.voff = None
-		self.hoff = None
 		self.interval = None
 		self.widgets = []
 
@@ -41,36 +35,40 @@ class RedditConfigWindow:
 		icon = gtk.gdk.pixbuf_new_from_file(NOTHING_HAPPENING_ICON)
 		gtk.window_set_default_icon_list((icon))
 
-		#list of tuples made up of (label, default value, mask_characters, bind to variable)
-		##CHANGE THE DEFAULT VALUES HERE. NOTE THEY ARE STRINGS SO KEEP THE QUOTES AROUND THEM.
-		self.settings = [
-				("Reddit Username:",          '',    False),
-				("Reddit Password:",          '',    True ),
-				("Check Interval (minutes):", '10', False),
-		]
-
-		table = gtk.Table(rows=6, columns=2, homogeneous=False)
+		table = gtk.Table(rows=4, columns=2, homogeneous=False)
 		self.window.add(table)
 
-		for (row, (label, default_value, apply_mask)) in enumerate(self.settings):
-			
-			label_component = gtk.Label(label)
-			label_component.set_alignment(0, 0.5)
+		self.label_username = gtk.Label('Username')
+		self.label_username.set_alignment(0, 0.5)
+		table.attach(self.label_username, 0, 1, 0, 1, xpadding=2, ypadding=1)
+		self.label_username.show()
 
-			text_component = gtk.Entry(max=0)
-			text_component.set_text(default_value)
-			
-			if apply_mask:
-				text_component.set_visibility(False)
-				text_component.set_invisible_char('*')
+		self.text_username = gtk.Entry(max=0)
+		self.text_username.set_text(DEFAULT_USERNAME)
+		table.attach(self.text_username, 1, 2, 0, 1, xpadding=2, ypadding=1)
+		self.text_username.show()
 
-			table.attach(label_component, 0, 1, row, row + 1, xpadding=2, ypadding=1)
-			table.attach(text_component,  1, 2, row, row + 1, xpadding=2, ypadding=1)
+		self.label_password = gtk.Label('Password')
+		self.label_password.set_alignment(0, 0.5)
+		table.attach(self.label_password, 0, 1, 1, 2, xpadding=2, ypadding=1)
+		self.label_password.show()
+		
+		self.text_password = gtk.Entry(max=0)
+		self.text_password.set_text(DEFAULT_PASSWORD)
+		self.text_password.set_visibility(False)
+		self.text_password.set_invisible_char('*')
+		table.attach(self.text_password, 1, 2, 1, 2, xpadding=2, ypadding=1)
+		self.text_password.show()
 
-			label_component.show()
-			text_component.show()
+		self.label_interval = gtk.Label('Interval (minutes)')
+		self.label_interval.set_alignment(0, 0.5)
+		table.attach(self.label_interval, 0, 1, 2, 3, xpadding=2, ypadding=1)
+		self.label_interval.show()
 
-			self.widgets.append(text_component)
+		self.text_interval = gtk.Entry(max=0)
+		self.text_interval.set_text(str(DEFAULT_CHECK_INTERVAL))
+		table.attach(self.text_interval, 1, 2, 2, 3, xpadding=2, ypadding=1)
+		self.text_interval.show()
 
 		#Add ok and quit buttons
 		ok_btn = gtk.Button(stock=gtk.STOCK_OK)
@@ -82,12 +80,9 @@ class RedditConfigWindow:
 		close_btn.connect("clicked", self.on_cancel)
 		close_btn.show()
 
-		if FLIP_MODE_REVERSE:
-			table.attach(ok_btn, 0, 1, 5, 6, ypadding=2)
-			table.attach(close_btn, 1, 2, 5, 6, ypadding=2)
-		else:
-			table.attach(close_btn, 0, 1, 5, 6, ypadding=2)
-			table.attach(ok_btn, 1, 2, 5, 6, ypadding=2)
+		#Reverse these lines if you think the button order is wrong.
+		table.attach(ok_btn, 0, 1, 5, 6, ypadding=2)
+		table.attach(close_btn, 1, 2, 5, 6, ypadding=2)
 
 		self.window.set_default(ok_btn)
 		table.show()
@@ -97,12 +92,17 @@ class RedditConfigWindow:
 		gtk.main()
 
 	def on_ok(self, widget, callback_data=None):
-		self.user = self.widgets[0].get_text()
-		self.passwd = self.widgets[1].get_text()
-		self.interval = self.widgets[2].get_text()
-
 		self.window.hide()
 		gtk.main_quit()
+
+	def get_username(self):
+		return self.text_username.get_text()
+
+	def get_password(self):
+		return self.text_password.get_text()
+
+	def get_interval(self):
+		return self.text_interval.get_text()
 
 	def on_cancel(self, widget, callback_data=None):
 		gtk.main_quit()
@@ -110,9 +110,10 @@ class RedditConfigWindow:
 
 class RedditTrayIcon():
 
-	def __init__(self, reddit_session, interval):
+	def __init__(self, user, password, interval):
 
-		self.reddit = reddit_session
+		self.user = user
+		self.password = password
 		self.interval = interval
 
 		#create the tray icon
@@ -188,6 +189,9 @@ class RedditTrayIcon():
 		while gtk.events_pending():
 			gtk.main_iteration(True)
 
+		self.reddit = reddit.Reddit()
+		self.reddit.login(self.user, self.password)
+
 		if self.reddit.has_new_mail():
 			self.icon_image.set_from_pixbuf(self.new_mail_icon)
 		else:
@@ -203,13 +207,10 @@ if __name__=='__main__':
 	cfg_dlg = RedditConfigWindow()
 	cfg_dlg.show()
 
-	username = cfg_dlg.user
-	password = cfg_dlg.passwd
-	#convert to milliseconds
-	interval = int(cfg_dlg.interval) * 60000
+	tray_icon = RedditTrayIcon(
+		cfg_dlg.get_username(),
+		cfg_dlg.get_password(),
+		int(cfg_dlg.get_interval()) * 60000
+	)
 
-	reddit_session = reddit.Reddit()
-	reddit_session.login(username, password)
-
-	tray_icon = RedditTrayIcon(reddit_session, interval)
 	gtk.main()
