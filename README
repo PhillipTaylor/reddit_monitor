@@ -12,8 +12,7 @@ http://github.com/PhillipTaylor/reddit_monitor/raw/a0ad84b5fb93590be7e2324d7e789
 
 --REQUIREMENTS--
 The requirements for this application are:
--	Gnome or XFCE or KDE (linux)
--	Python 2.0
+-	Python 2.x
 
 
 
