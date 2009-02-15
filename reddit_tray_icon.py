@@ -124,7 +124,7 @@ class RedditTrayIcon():
 		self.eventbox.connect("button_press_event", self.on_tray_icon_click)
 		self.icon_image = gtk.Image()
 
-		#load the two icons
+		#load the three icons
 		pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.abspath(NOTHING_HAPPENING_ICON))
 		scaledbuf = pixbuf.scale_simple(24, 24, gtk.gdk.INTERP_BILINEAR)
 		self.nothing_icon = scaledbuf
@@ -160,8 +160,6 @@ class RedditTrayIcon():
 		while gtk.events_pending():
 			gtk.main_iteration(True)
 
-		#For some reason self.check_now doesn't work so I need
-		#to create a dirty hack.
 		self.checking = False
 
 		self.timer = gobject.timeout_add(self.interval, self.on_check_now)

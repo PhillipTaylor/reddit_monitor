@@ -18,7 +18,7 @@ REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/'
 #Notes:
 #1. Could have better exception handling (i.e. some for 404, wrong password, other basic things)
 #2. Could possibly save cookie and reuse it later (no password question on load).
-#3. Known bug. If you write a comment on reddit about the regex's this page users you inadvertantly
+#3. Known bug. If you write a comment on reddit about the regex's this page uses you inadvertantly
 #   trick it. (e.g. put /static/mailgrey/png) in a comment and it will wrongly think you have no new
 #   mail.
 
