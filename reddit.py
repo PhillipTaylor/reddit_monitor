@@ -15,6 +15,7 @@ import simplejson
 REDDIT_USER_AGENT = { 'User-agent': 'Mozilla/4.0 (compatible; MSIE5.5; Windows NT' }
 REDDIT_LOGIN_URL = 'http://www.reddit.com/api/login'
 REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json'
+REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/'
 
 #Notes:
 #1. Could have better exception handling (i.e. some for 404, wrong password, other basic things)
