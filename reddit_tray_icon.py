@@ -40,61 +40,62 @@ class RedditConfigWindow:
 		self.window.set_border_width(5)
 		self.window.set_position(gtk.WIN_POS_CENTER)
 		self.window.set_modal(True)
-		self.window.set_resizable(True)
+		self.window.set_resizable(False)
+		self.window.set_property('skip-taskbar-hint', True)
 		icon = gtk.gdk.pixbuf_new_from_file(REDDIT_ICON)
-		gtk.window_set_default_icon_list((icon))
+		self.window.set_icon_list((icon))
 
 		table = gtk.Table(rows=4, columns=2, homogeneous=False)
+		table.set_row_spacings(6)
+		table.set_col_spacings(6)
 		self.window.add(table)
 
-		self.label_username = gtk.Label('Username')
-		self.label_username.set_alignment(0, 0.5)
-		table.attach(self.label_username, 0, 1, 0, 1, xpadding=2, ypadding=1)
-		self.label_username.show()
+		self.label_username = gtk.Label('Username:')
+		self.label_username.set_alignment(1, 0.5)
+		table.attach(self.label_username, 0, 1, 0, 1)
 
 		self.text_username = gtk.Entry(max=0)
 		self.text_username.set_text(DEFAULT_USERNAME)
-		table.attach(self.text_username, 1, 2, 0, 1, xpadding=2, ypadding=1)
-		self.text_username.show()
+		table.attach(self.text_username, 1, 2, 0, 1)
 
-		self.label_password = gtk.Label('Password')
-		self.label_password.set_alignment(0, 0.5)
-		table.attach(self.label_password, 0, 1, 1, 2, xpadding=2, ypadding=1)
-		self.label_password.show()
+		self.label_password = gtk.Label('Password:')
+		self.label_password.set_alignment(1, 0.5)
+		table.attach(self.label_password, 0, 1, 1, 2)
 		
 		self.text_password = gtk.Entry(max=0)
 		self.text_password.set_text(DEFAULT_PASSWORD)
 		self.text_password.set_visibility(False)
 		self.text_password.set_invisible_char('*')
-		table.attach(self.text_password, 1, 2, 1, 2, xpadding=2, ypadding=1)
-		self.text_password.show()
+		table.attach(self.text_password, 1, 2, 1, 2)
 
-		self.label_interval = gtk.Label('Interval (minutes)')
-		self.label_interval.set_alignment(0, 0.5)
-		table.attach(self.label_interval, 0, 1, 2, 3, xpadding=2, ypadding=1)
-		self.label_interval.show()
+		self.label_interval = gtk.Label('Interval (minutes):')
+		self.label_interval.set_alignment(1, 0.5)
+		table.attach(self.label_interval, 0, 1, 2, 3)
 
 		self.text_interval = gtk.Entry(max=0)
 		self.text_interval.set_text(str(DEFAULT_CHECK_INTERVAL))
-		table.attach(self.text_interval, 1, 2, 2, 3, xpadding=2, ypadding=1)
-		self.text_interval.show()
+		table.attach(self.text_interval, 1, 2, 2, 3)
 
 		#Add ok and quit buttons
+		bbox = gtk.HButtonBox()
+		bbox.set_layout(gtk.BUTTONBOX_END)
+		bbox.set_spacing(8)
+		
 		ok_btn = gtk.Button(stock=gtk.STOCK_OK)
 		ok_btn.connect("clicked", self.on_ok)
 		ok_btn.set_flags(gtk.CAN_DEFAULT)
-		ok_btn.show()
+		self.window.set_default(ok_btn)
 
 		close_btn = gtk.Button(stock=gtk.STOCK_CANCEL)
 		close_btn.connect("clicked", self.on_cancel)
-		close_btn.show()
+		
+		bbox.add(close_btn)
+		bbox.add(ok_btn)
 
-		#Reverse these lines if you think the button order is wrong.
-		table.attach(ok_btn, 0, 1, 5, 6, ypadding=2)
-		table.attach(close_btn, 1, 2, 5, 6, ypadding=2)
+		table.attach(bbox, 1, 2, 4, 5)
 
 		self.window.set_default(ok_btn)
-		table.show()
+		table.show_all()
 
 	def show(self):
 		self.window.show()
@@ -132,17 +133,9 @@ class RedditTrayIcon():
 		self.tray_icon.connect('popup-menu', self.on_tray_icon_click)
 
 		#load the three icons
-		pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.abspath(REDDIT_ICON))
-		scaledbuf = pixbuf.scale_simple(24, 24, gtk.gdk.INTERP_BILINEAR)
-		self.reddit_icon = scaledbuf
-
-		pixbuf2 = gtk.gdk.pixbuf_new_from_file(os.path.abspath(NEW_MAIL_ICON))
-		scaledbuf2 = pixbuf2.scale_simple(24, 24, gtk.gdk.INTERP_BILINEAR)
-		self.new_mail_icon = scaledbuf2
-
-		pixbuf3 = gtk.gdk.pixbuf_new_from_file(os.path.abspath(BUSY_ICON))
-		scaledbuf3 = pixbuf3.scale_simple(24, 24, gtk.gdk.INTERP_BILINEAR)
-		self.busy_icon = scaledbuf3
+		self.reddit_icon = gtk.gdk.pixbuf_new_from_file_at_size(os.path.abspath(REDDIT_ICON), 24, 24)
+		self.new_mail_icon = gtk.gdk.pixbuf_new_from_file_at_size(os.path.abspath(NEW_MAIL_ICON), 24, 24)
+		self.busy_icon = gtk.gdk.pixbuf_new_from_file_at_size(os.path.abspath(BUSY_ICON), 24, 24)
 
 		self.tray_icon.set_from_pixbuf(self.reddit_icon)
 
