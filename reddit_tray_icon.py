@@ -9,7 +9,17 @@ import time
 
 import reddit
 
-NOTHING_HAPPENING_ICON = 'icons/reddit.png'
+try:
+	import pynotify
+	if not pynotify.init('Reddit'):
+		pynotify = False
+except:
+	pynotify = False
+
+if not pynotify:
+	print 'Notice: pynotify could not be loaded. Balloon notifications will be unavailable.'
+
+REDDIT_ICON            = 'icons/reddit.png'
 NEW_MAIL_ICON          = 'icons/new_mail.png'
 BUSY_ICON              = 'icons/busy.gif'
 DEFAULT_USERNAME       = ''
@@ -31,7 +41,7 @@ class RedditConfigWindow:
 		self.window.set_position(gtk.WIN_POS_CENTER)
 		self.window.set_modal(True)
 		self.window.set_resizable(True)
-		icon = gtk.gdk.pixbuf_new_from_file(NOTHING_HAPPENING_ICON)
+		icon = gtk.gdk.pixbuf_new_from_file(REDDIT_ICON)
 		gtk.window_set_default_icon_list((icon))
 
 		table = gtk.Table(rows=4, columns=2, homogeneous=False)
@@ -122,9 +132,9 @@ class RedditTrayIcon():
 		self.tray_icon.connect('popup-menu', self.on_tray_icon_click)
 
 		#load the three icons
-		pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.abspath(NOTHING_HAPPENING_ICON))
+		pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.abspath(REDDIT_ICON))
 		scaledbuf = pixbuf.scale_simple(24, 24, gtk.gdk.INTERP_BILINEAR)
-		self.nothing_icon = scaledbuf
+		self.reddit_icon = scaledbuf
 
 		pixbuf2 = gtk.gdk.pixbuf_new_from_file(os.path.abspath(NEW_MAIL_ICON))
 		scaledbuf2 = pixbuf2.scale_simple(24, 24, gtk.gdk.INTERP_BILINEAR)
@@ -134,7 +144,7 @@ class RedditTrayIcon():
 		scaledbuf3 = pixbuf3.scale_simple(24, 24, gtk.gdk.INTERP_BILINEAR)
 		self.busy_icon = scaledbuf3
 
-		self.tray_icon.set_from_pixbuf(self.nothing_icon)
+		self.tray_icon.set_from_pixbuf(self.reddit_icon)
 
 		#create the popup menu
 		self.check_now = gtk.MenuItem('_Check Now', True)
@@ -163,7 +173,7 @@ class RedditTrayIcon():
 		self.menu.popup(None, None, None, button, activate_time)
 
 	def on_reset(self, event=None):
-		self.tray_icon.set_from_pixbuf(self.nothing_icon)
+		self.tray_icon.set_from_pixbuf(self.reddit_icon)
 
 	def on_quit(self, event=None):
 		gtk.main_quit()
@@ -183,10 +193,22 @@ class RedditTrayIcon():
 		while gtk.events_pending():
 			gtk.main_iteration(True)
 
-		if self.reddit.get_new_mail():
+		newmsgs = self.reddit.get_new_mail()
+		if newmsgs:
 			self.tray_icon.set_from_pixbuf(self.new_mail_icon)
+
+			if pynotify:
+				latestmsg = newmsgs[0]
+				title = 'You have a new message on reddit!'
+				body  = '<b>%s</b>\n%s' % (latestmsg['subject'], latestmsg['body'])
+
+				balloon = pynotify.Notification(title, body)
+				balloon.set_timeout(60*1000)
+				balloon.set_icon_from_pixbuf(self.reddit_icon)
+				balloon.attach_to_status_icon(self.tray_icon)
+				balloon.show()
 		else:
-			self.tray_icon.set_from_pixbuf(self.nothing_icon)
+			self.tray_icon.set_from_pixbuf(self.reddit_icon)
 
 		self.timer = gobject.timeout_add(self.interval, self.on_check_now)
 		self.menu.show_all()
