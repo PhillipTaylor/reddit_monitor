@@ -166,6 +166,7 @@ class RedditTrayIcon():
 			gtk.main_iteration(True)
 
 		self.checking = False
+		self.newmsgs = []
 
 		self.timer = gobject.timeout_add(self.interval, self.on_check_now)
 
@@ -173,6 +174,7 @@ class RedditTrayIcon():
 		self.menu.popup(None, None, None, button, activate_time)
 
 	def on_reset(self, event=None):
+		self.newmsgs = []
 		self.tray_icon.set_from_pixbuf(self.reddit_icon)
 
 	def on_quit(self, event=None):
@@ -195,7 +197,8 @@ class RedditTrayIcon():
 
 		newmsgs = self.reddit.get_new_mail()
 		if newmsgs:
-			self.tray_icon.set_from_pixbuf(self.new_mail_icon)
+			# Add newmsgs at the beginning so the latest message is always at index 0
+			self.newmsgs = newmsgs + self.newmsgs
 
 			if pynotify:
 				latestmsg = newmsgs[0]
@@ -207,6 +210,9 @@ class RedditTrayIcon():
 				balloon.set_icon_from_pixbuf(self.reddit_icon)
 				balloon.attach_to_status_icon(self.tray_icon)
 				balloon.show()
+
+		if self.newmsgs:
+			self.tray_icon.set_from_pixbuf(self.new_mail_icon)
 		else:
 			self.tray_icon.set_from_pixbuf(self.reddit_icon)
 
