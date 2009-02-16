@@ -213,8 +213,13 @@ class RedditTrayIcon():
 
 		if self.newmsgs:
 			self.tray_icon.set_from_pixbuf(self.new_mail_icon)
+			if len(self.newmsgs) == 1:
+				self.tray_icon.set_tooltip('1 new message!')
+			else:
+				self.tray_icon.set_tooltip('%d new messages!' % len(self.newmsgs))
 		else:
 			self.tray_icon.set_from_pixbuf(self.reddit_icon)
+			self.tray_icon.set_tooltip('No new messages.')
 
 		self.menu.show_all()
 
