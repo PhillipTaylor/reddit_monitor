@@ -226,4 +226,6 @@ if __name__=='__main__':
 		int(cfg_dlg.get_interval()) * 60000
 	)
 
+	tray_icon.on_check_now()
+
 	gtk.main()
