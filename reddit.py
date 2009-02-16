@@ -166,7 +166,7 @@ def run():
 	if len(options) > 0: #must be the mail check option (because it's the only option)
 		passwd = getpass.getpass('Your reddit password please: ')
 		Red.login(username, passwd)
-		print Red.get_new_mail()
+		print (len(Red.get_new_mail()) != 0)
 	else:
 		(karma, comment_karma) = Red.get_karma(username)
 		print 'User %s has %s karma and %s comment karma' % (username, karma, comment_karma)
