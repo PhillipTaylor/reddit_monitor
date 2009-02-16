@@ -27,11 +27,6 @@ need for them.
 There is nothing to compile and it runs from your
 home directory.
 
-IMPORTANT NOTE FOR 32 BIT USERS:
-	You will need to delete or move pytrayicon.so out of the
-	way (because it's the 64 bit version) and rename
-	pytrayicon32.so to pytrayicon.so
-
 
 --USAGE--
 
