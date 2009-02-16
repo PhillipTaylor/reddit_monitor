@@ -210,10 +210,12 @@ class RedditTrayIcon():
 		else:
 			self.tray_icon.set_from_pixbuf(self.reddit_icon)
 
-		self.timer = gobject.timeout_add(self.interval, self.on_check_now)
 		self.menu.show_all()
 
 		self.checking = False
+
+		# Keep timeout alive
+		return True
 	
 if __name__=='__main__':
 
