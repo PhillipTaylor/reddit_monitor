@@ -188,7 +188,7 @@ class RedditTrayIcon():
 		while gtk.events_pending():
 			gtk.main_iteration(True)
 
-		if self.reddit.has_new_mail():
+		if self.reddit.get_new_mail():
 			self.icon_image.set_from_pixbuf(self.new_mail_icon)
 		else:
 			self.icon_image.set_from_pixbuf(self.nothing_icon)

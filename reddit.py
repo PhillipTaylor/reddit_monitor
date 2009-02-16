@@ -10,10 +10,11 @@ import getopt
 import getpass
 import sys
 import re
+import simplejson
 
 REDDIT_USER_AGENT = { 'User-agent': 'Mozilla/4.0 (compatible; MSIE5.5; Windows NT' }
 REDDIT_LOGIN_URL = 'http://www.reddit.com/api/login'
-REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/'
+REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json'
 
 #Notes:
 #1. Could have better exception handling (i.e. some for 404, wrong password, other basic things)
@@ -104,7 +105,7 @@ class Reddit:
 			page_contents = self.urlopen(req).read()			
 
 		except Exception, e:
-			print "Error is related to reading a profile page: %s", e.message
+			print 'Error is related to reading a profile page: %s', e.message
 			raise e
 
 		results = self.karma_re.search(page_contents)
@@ -114,28 +115,30 @@ class Reddit:
 		return (karma, comment_karma)
 
 
-	def has_new_mail(self):
+	def get_new_mail(self):
 
-		profile_page_to_fetch = REDDIT_PROFILE_PAGE % self.user
+		profile_page_to_fetch = REDDIT_INBOX_PAGE
 
 		try:
 			req = self.Request(profile_page_to_fetch, None, REDDIT_USER_AGENT)
-			page_contents = self.urlopen(req).read()			
+			json_data = self.urlopen(req).read()
 
 		except Exception, e:
-			print "Error is related to reading a profile page: %s", e.message
+			print 'Error is related to reading inbox page: %s', e.message
 			raise e
 
-		if page_contents.find('/static/mailgray.png') == -1:
-			if page_contents.find('/static/mail.png') == -1:
-				dump = open('.dump','w')
-				dump.write(page_contents)
-				dump.close()
-				raise Exception('Bad page returned')
-			else:
-				return True
-		else:
-			return False
+		try:
+			inbox = simplejson.loads(json_data)
+			msgs = inbox['data']['children']
+			newmsgs = [msg['data'] for msg in msgs if msg['data']['new'] == True]
+
+		except Exception, e:
+			dump = open('.dump','w')
+			dump.write(json_data)
+			dump.close()
+			raise Exception('Bad JSON returned')
+
+		return newmsgs
 
 def run():
 
@@ -162,7 +165,7 @@ def run():
 	if len(options) > 0: #must be the mail check option (because it's the only option)
 		passwd = getpass.getpass('Your reddit password please: ')
 		Red.login(username, passwd)
-		print Red.has_new_mail()
+		print Red.get_new_mail()
 	else:
 		(karma, comment_karma) = Red.get_karma(username)
 		print 'User %s has %s karma and %s comment karma' % (username, karma, comment_karma)
