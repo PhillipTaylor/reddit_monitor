@@ -6,7 +6,6 @@ import gtk
 import gobject
 import sys
 import time
-import pytrayicon
 
 import reddit
 
@@ -118,11 +117,9 @@ class RedditTrayIcon():
 
 
 		#create the tray icon
-		self.tray = pytrayicon.TrayIcon('Reddit')
-		self.eventbox = gtk.EventBox()
-		self.tray.add(self.eventbox)
-		self.eventbox.connect("button_press_event", self.on_tray_icon_click)
-		self.icon_image = gtk.Image()
+		self.tray_icon = gtk.StatusIcon()
+		self.tray_icon.connect('activate', self.on_check_now)
+		self.tray_icon.connect('popup-menu', self.on_tray_icon_click)
 
 		#load the three icons
 		pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.abspath(NOTHING_HAPPENING_ICON))
@@ -137,9 +134,7 @@ class RedditTrayIcon():
 		scaledbuf3 = pixbuf3.scale_simple(24, 24, gtk.gdk.INTERP_BILINEAR)
 		self.busy_icon = scaledbuf3
 
-		self.icon_image.set_from_pixbuf(self.nothing_icon)
-		self.eventbox.add(self.icon_image)
-		self.tray.show_all()
+		self.tray_icon.set_from_pixbuf(self.nothing_icon)
 
 		#create the popup menu
 		self.check_now = gtk.MenuItem('_Check Now', True)
@@ -164,17 +159,17 @@ class RedditTrayIcon():
 
 		self.timer = gobject.timeout_add(self.interval, self.on_check_now)
 
-	def on_tray_icon_click(self, signal, event):
-		self.menu.popup(None, None, None, event.button, event.time)
+	def on_tray_icon_click(self, status_icon, button, activate_time):
+		self.menu.popup(None, None, None, button, activate_time)
 
 	def on_reset(self, event=None):
-		self.icon_image.set_from_pixbuf(self.nothing_icon)
+		self.tray_icon.set_from_pixbuf(self.nothing_icon)
 
 	def on_quit(self, event=None):
 		gtk.main_quit()
 		sys.exit(0)
 
-	def on_check_now(self,event=None):
+	def on_check_now(self, event=None):
 
 		#poor mans lock
 		if self.checking:
@@ -182,16 +177,16 @@ class RedditTrayIcon():
 		else:
 			self.checking = True
 
-		self.icon_image.set_from_pixbuf(self.busy_icon)
+		self.tray_icon.set_from_pixbuf(self.busy_icon)
 		self.menu.hide_all()
 		
 		while gtk.events_pending():
 			gtk.main_iteration(True)
 
 		if self.reddit.get_new_mail():
-			self.icon_image.set_from_pixbuf(self.new_mail_icon)
+			self.tray_icon.set_from_pixbuf(self.new_mail_icon)
 		else:
-			self.icon_image.set_from_pixbuf(self.nothing_icon)
+			self.tray_icon.set_from_pixbuf(self.nothing_icon)
 
 		self.timer = gobject.timeout_add(self.interval, self.on_check_now)
 		self.menu.show_all()
