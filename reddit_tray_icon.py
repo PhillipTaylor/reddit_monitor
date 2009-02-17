@@ -13,7 +13,7 @@ try:
 	import pynotify
 	if not pynotify.init('Reddit'):
 		pynotify = False
-except:
+except ImportError:
 	pynotify = False
 
 if not pynotify:
