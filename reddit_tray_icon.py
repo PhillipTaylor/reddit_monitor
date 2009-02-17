@@ -121,6 +121,7 @@ class RedditConfigWindow:
 		gtk.main_quit()
 		sys.exit(0)
 
+
 class RedditTrayIcon():
 
 	def __init__(self, user, password, interval):
@@ -223,6 +224,16 @@ class RedditTrayIcon():
 
 		# Keep timeout alive
 		return True
+
+
+def open_url(url):
+    try:
+        subprocess.call(['xdg-open', url])
+    except OSError:
+        # TODO: There's probably a slightly better way to do this. Most, if not
+        #		all desktop linux users are going to have this though.
+        print "This feature requires the xdg-utils packages."
+
 	
 if __name__=='__main__':
 
