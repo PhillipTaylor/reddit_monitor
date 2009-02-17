@@ -6,6 +6,7 @@ import gtk
 import gobject
 import sys
 import time
+import subprocess
 
 import reddit
 
@@ -146,6 +147,9 @@ class RedditTrayIcon():
 		self.tray_icon.set_from_pixbuf(self.reddit_icon)
 
 		#create the popup menu
+		inbox_now = gtk.MenuItem('_Inbox', True)
+		inbox_now.connect('activate', self.on_inbox)
+		
 		check_now = gtk.MenuItem('_Check Now', True)
 		check_now.connect('activate', self.on_check_now)
 
@@ -156,6 +160,7 @@ class RedditTrayIcon():
 		quit.connect('activate', self.on_quit)
 		
 		self.menu = gtk.Menu()
+		self.menu.append(inbox_now)
 		self.menu.append(check_now)
 		self.menu.append(reset_now)
 		self.menu.append(quit)
@@ -168,6 +173,9 @@ class RedditTrayIcon():
 
 	def on_tray_icon_click(self, status_icon, button, activate_time):
 		self.menu.popup(None, None, None, button, activate_time)
+	
+	def on_inbox(self, event=None):
+		open_url('http://www.reddit.com/message/inbox')
 
 	def on_reset(self, event=None):
 		self.newmsgs = []
