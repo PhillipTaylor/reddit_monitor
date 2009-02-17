@@ -136,11 +136,12 @@ class RedditTrayIcon():
 	checking = False
 	newmsgs = []
 
-	def __init__(self, features, user, password, interval):
+	def __init__(self, features, user, password, interval, pynotify):
 
 		self.reddit = reddit.Reddit()
 		self.reddit.login(user, password)
 		self.interval = interval
+		self.pynotify = pynotify
 		self.features = features
 
 		#create the tray icon
@@ -216,12 +217,12 @@ class RedditTrayIcon():
 			# Add newmsgs at the beginning so the latest message is always at index 0
 			self.newmsgs = newmsgs + self.newmsgs
 
-			if 'pynotify' in self.features:
+			if 'pynotify' in self.features and self.pynotify != None:
 				latestmsg = newmsgs[0]
 				title = 'You have a new message on reddit!'
 				body  = '<b>%s</b>\n%s' % (latestmsg['subject'], latestmsg['body'])
 
-				balloon = pynotify.Notification(title, body)
+				balloon = self.pynotify.Notification(title, body)
 				balloon.set_timeout(60*1000)
 				balloon.set_icon_from_pixbuf(self.reddit_icon)
 				balloon.attach_to_status_icon(self.tray_icon)
@@ -254,9 +255,10 @@ def run():
 
 	try:
 		import pynotify
+		pynotify.init('Reddit')
 		features.append('pynotify')
 	except ImportError:
-		pass
+		pynotify = None
 
 	#check for xdg-open
 	search_path = os.environ.get('PATH').split(':')
@@ -264,14 +266,17 @@ def run():
 		if os.path.exists(os.path.join(path, 'xdg-open')):
 			features.append('xdg-open')
 
-
 	cfg_dlg = RedditConfigWindow(features)
+
+	if not cfg_dlg.get_notifications():
+		pynotify = None	
 
 	tray_icon = RedditTrayIcon(
 		features,
 		cfg_dlg.get_username(),
 		cfg_dlg.get_password(),
-		int(cfg_dlg.get_interval()) * 60000
+		int(cfg_dlg.get_interval()) * 60000,
+		pynotify,
 	)
 
 	tray_icon.on_check_now()
