@@ -56,6 +56,7 @@ class RedditConfigWindow:
 
 		self.text_username = gtk.Entry(max=0)
 		self.text_username.set_text(DEFAULT_USERNAME)
+		self.text_username.set_activates_default(True)
 		table.attach(self.text_username, 1, 2, 0, 1)
 
 		self.label_password = gtk.Label('Password:')
@@ -64,6 +65,7 @@ class RedditConfigWindow:
 		
 		self.text_password = gtk.Entry(max=0)
 		self.text_password.set_text(DEFAULT_PASSWORD)
+		self.text_password.set_activates_default(True)
 		self.text_password.set_visibility(False)
 		self.text_password.set_invisible_char('*')
 		table.attach(self.text_password, 1, 2, 1, 2)
@@ -74,6 +76,7 @@ class RedditConfigWindow:
 
 		self.text_interval = gtk.Entry(max=0)
 		self.text_interval.set_text(str(DEFAULT_CHECK_INTERVAL))
+		self.text_interval.set_activates_default(True)
 		table.attach(self.text_interval, 1, 2, 2, 3)
 
 		#Add ok and quit buttons
