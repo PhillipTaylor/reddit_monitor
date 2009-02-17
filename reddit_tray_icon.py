@@ -20,42 +20,43 @@ DEFAULT_PASSWORD       = '' #obvious security flaw if you fill this in.
 DEFAULT_CHECK_INTERVAL = 10 #minutes
 REDDIT_INBOX_USER_URL  = 'http://www.reddit.com/message/inbox'
 
-class RedditConfigWindow:
+class RedditConfigWindow(gtk.Window):
 
 	def __init__(self, features):
+		gtk.Window.__init__(self)
 
 		self.user = None
 		self.passwd = None
 		self.interval = None
-		self.widgets = []
+		self.features = features
 
-		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-		self.window.set_title('Reddit Tray Icon Parameters')
-		self.window.set_border_width(5)
-		self.window.set_position(gtk.WIN_POS_CENTER)
-		self.window.set_modal(True)
-		self.window.set_resizable(False)
-		self.window.set_property('skip-taskbar-hint', True)
-		icon = gtk.gdk.pixbuf_new_from_file(REDDIT_ICON)
-		self.window.set_icon_list((icon))
+		gtk.Window.__init__(self)
+		self.set_title('Reddit Tray Icon Preferences')
+		self.set_position(gtk.WIN_POS_CENTER)
+		self.set_modal(True)
+		self.set_resizable(False)
+		self.set_icon_from_file(os.path.abspath(REDDIT_ICON))
+		self.connect('delete-event', self.on_cancel)
+		
+		vbox = gtk.VBox(homogeneous=False, spacing=6)
+		vbox.set_border_width(6)
 
 		table = gtk.Table(rows=4, columns=2, homogeneous=False)
 		table.set_row_spacings(6)
 		table.set_col_spacings(6)
-		self.window.add(table)
 
-		self.label_username = gtk.Label('Username:')
-		self.label_username.set_alignment(1, 0.5)
-		table.attach(self.label_username, 0, 1, 0, 1)
+		label_username = gtk.Label('Username:')
+		label_username.set_alignment(1, 0.5)
+		table.attach(label_username, 0, 1, 0, 1)
 
 		self.text_username = gtk.Entry(max=0)
 		self.text_username.set_text(DEFAULT_USERNAME)
 		self.text_username.set_activates_default(True)
 		table.attach(self.text_username, 1, 2, 0, 1)
 
-		self.label_password = gtk.Label('Password:')
-		self.label_password.set_alignment(1, 0.5)
-		table.attach(self.label_password, 0, 1, 1, 2)
+		label_password = gtk.Label('Password:')
+		label_password.set_alignment(1, 0.5)
+		table.attach(label_password, 0, 1, 1, 2)
 		
 		self.text_password = gtk.Entry(max=0)
 		self.text_password.set_text(DEFAULT_PASSWORD)
@@ -64,16 +65,25 @@ class RedditConfigWindow:
 		self.text_password.set_invisible_char('*')
 		table.attach(self.text_password, 1, 2, 1, 2)
 
-		self.label_interval = gtk.Label('Interval (minutes):')
-		self.label_interval.set_alignment(1, 0.5)
-		table.attach(self.label_interval, 0, 1, 2, 3)
+		label_interval = gtk.Label('Interval (minutes):')
+		label_interval.set_alignment(1, 0.5)
+		table.attach(label_interval, 0, 1, 2, 3)
 
 		self.text_interval = gtk.Entry(max=0)
 		self.text_interval.set_text(str(DEFAULT_CHECK_INTERVAL))
 		self.text_interval.set_activates_default(True)
 		table.attach(self.text_interval, 1, 2, 2, 3)
+		
+		vbox.pack_start(table)
+		
+		if 'pynotify' in features:
+			self.notify = gtk.CheckButton(label='Show notifications')
+			self.notify.set_active(True)
+			vbox.pack_start(self.notify)
+		else:
+			self.get_pynotify = gtk.Label('With pynotify you can have pop-up notifications!')
+			vbox.pack_start(self.get_pynotify)
 
-		#Add ok and quit buttons
 		bbox = gtk.HButtonBox()
 		bbox.set_layout(gtk.BUTTONBOX_END)
 		bbox.set_spacing(8)
@@ -81,18 +91,18 @@ class RedditConfigWindow:
 		ok_btn = gtk.Button(stock=gtk.STOCK_OK)
 		ok_btn.connect("clicked", self.on_ok)
 		ok_btn.set_flags(gtk.CAN_DEFAULT)
-		self.window.set_default(ok_btn)
 
 		close_btn = gtk.Button(stock=gtk.STOCK_CANCEL)
 		close_btn.connect("clicked", self.on_cancel)
 		
 		bbox.add(close_btn)
 		bbox.add(ok_btn)
+		vbox.pack_start(bbox)
+		self.add(vbox)
 
-		table.attach(bbox, 1, 2, 4, 5)
-
-		self.window.set_default(ok_btn)
-		table.show_all()
+		self.set_default(ok_btn)
+		self.show_all()
+		gtk.main()
 
 	def show(self):
 		self.window.show()
@@ -114,6 +124,12 @@ class RedditConfigWindow:
 
 	def get_interval(self):
 		return self.text_interval.get_text()
+
+	def get_notifications(self):
+		if 'pynotify' in self.features:
+			return self.notify.get_active()
+		else:
+			return False
 
 class RedditTrayIcon():
 
@@ -250,7 +266,6 @@ def run():
 
 
 	cfg_dlg = RedditConfigWindow(features)
-	cfg_dlg.show()
 
 	tray_icon = RedditTrayIcon(
 		features,
@@ -262,7 +277,6 @@ def run():
 	tray_icon.on_check_now()
 
 	gtk.main()
-	
 
 if __name__=='__main__':
 	run()
