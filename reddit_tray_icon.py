@@ -237,9 +237,13 @@ def open_url(url):
     try:
         subprocess.call(['xdg-open', url])
     except OSError:
-        # TODO: There's probably a slightly better way to do this. Most, if not
-        #		all desktop linux users are going to have this though.
-        print "This feature requires the xdg-utils packages."
+        try:
+        	import webbrowser
+        	webbrowser.open_new_tab(url)
+        Except ImportError: # I think this module only comes with 2.5 or later
+        	# TODO: Throw an error dialog?
+        	print "This feature requires the xdg-utils packages."
+        
 
 	
 if __name__=='__main__':
