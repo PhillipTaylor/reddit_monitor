@@ -7,8 +7,7 @@ have new messages on Reddit. It's pretty simple and
 straight forward. Here is an example of what it looks
 like:
 
-http://github.com/PhillipTaylor/reddit_monitor/raw/a0ad84b5fb93590be7e2324d7e789ee02952009e/Demo.png
-
+http://github.com/PhillipTaylor/reddit_monitor/blob/0364546e605ce73c9b3fc25d8dc0bbd91f59b014/Demo.png
 
 --REQUIREMENTS--
 The requirements for this application are:
@@ -75,22 +74,13 @@ of you ever doing any work again. Use with caution.
 
 --KNOWN BUGS--
 
-1. OK Button on password dialog isn't the default button. Doesn't
-respond to enter (someone could patch this in 30 seconds I know it)
+1. When the program scraps reddit to tell you if you have new mail it
+inadvertently marks new mail as having been read. We are currently
+speaking to Reddit about this.
 
 2. Reddit login process looks obfusicated. My app can't verify your
 password or username are correct so please type them carefully. Test
 with .reddit.py -m if you have troubles.
-
-3. Some systems give an error importing pytrayicon with regards to a C
-API version mismatch. This error isn't critical.
-
---ACKNOWLEDGEMENTS--
-reddit.py was solved using firebug and this guide on cookies:
-http://www.voidspace.org.uk/python/articles/cookielib.shtml
-
-The tray icon stuff and gtk dialog were pretty much ripped
-from Gmail Notifier: http://gmail-notify.sourceforge.net/
 
 
 --LICENSE--
@@ -104,7 +94,7 @@ Fedora 10, KDE 4+, 32 bit
 
 
 
---ABOUT THE AUTHOR--
+--ABOUT THE AUTHORS--
 Phillip (Philluminati) Taylor
 25 years old
 B.Sc. HONS Software Engineering
@@ -117,4 +107,4 @@ in London. It's all web based so excuse my GTK stuff.
 Please feel free to submit patches to add support where needed
 or other features. Also, note, there is absolutely no way I'm
 going to contribute to a piece of software that is designed
-specifically to game Reddit. That is strictly not my intention.
+specifically to game Reddit. That is strictly not our intention.
