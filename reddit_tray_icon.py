@@ -141,7 +141,11 @@ class RedditTrayIcon():
 		self.reddit = reddit.Reddit()
 		self.reddit.login(user, password)
 		self.interval = interval
+		
 		self.pynotify = pynotify
+		if 'pynotify' in features:		
+			pynotify.init('Reddit')
+
 		self.features = features
 
 		#create the tray icon
@@ -255,7 +259,6 @@ def run():
 
 	try:
 		import pynotify
-		pynotify.init('Reddit')
 		features.append('pynotify')
 	except ImportError:
 		pynotify = None
@@ -276,7 +279,7 @@ def run():
 		cfg_dlg.get_username(),
 		cfg_dlg.get_password(),
 		int(cfg_dlg.get_interval()) * 60000,
-		pynotify,
+		pynotify
 	)
 
 	tray_icon.on_check_now()
