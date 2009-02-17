@@ -124,12 +124,14 @@ class RedditConfigWindow:
 
 class RedditTrayIcon():
 
+	checking = False
+	newmsgs = []
+
 	def __init__(self, user, password, interval):
 
 		self.reddit = reddit.Reddit()
 		self.reddit.login(user, password)
 		self.interval = interval
-
 
 		#create the tray icon
 		self.tray_icon = gtk.StatusIcon()
@@ -144,26 +146,23 @@ class RedditTrayIcon():
 		self.tray_icon.set_from_pixbuf(self.reddit_icon)
 
 		#create the popup menu
-		self.check_now = gtk.MenuItem('_Check Now', True)
-		self.check_now.connect('activate', self.on_check_now)
+		check_now = gtk.MenuItem('_Check Now', True)
+		check_now.connect('activate', self.on_check_now)
 
-		self.reset_now = gtk.MenuItem('_Reset Icon', True)
-		self.reset_now.connect('activate', self.on_reset)
+		reset_now = gtk.MenuItem('_Reset Icon', True)
+		reset_now.connect('activate', self.on_reset)
 
-		self.quit = gtk.MenuItem('_Quit', True)
-		self.quit.connect('activate', self.on_quit)
+		quit = gtk.MenuItem('_Quit', True)
+		quit.connect('activate', self.on_quit)
 		
 		self.menu = gtk.Menu()
-		self.menu.append(self.check_now)
-		self.menu.append(self.reset_now)
-		self.menu.append(self.quit)
+		self.menu.append(check_now)
+		self.menu.append(reset_now)
+		self.menu.append(quit)
 		self.menu.show_all()
 
 		while gtk.events_pending():
 			gtk.main_iteration(True)
-
-		self.checking = False
-		self.newmsgs = []
 
 		self.timer = gobject.timeout_add(self.interval, self.on_check_now)
 
