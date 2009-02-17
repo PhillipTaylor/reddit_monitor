@@ -240,7 +240,7 @@ def open_url(url):
         try:
         	import webbrowser
         	webbrowser.open_new_tab(url)
-        Except ImportError:
+        except ImportError:
         	# TODO: Throw an error dialog?
         	print "This feature requires the xdg-utils package or Python 2.5 or later."
         
