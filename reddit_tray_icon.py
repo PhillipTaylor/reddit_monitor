@@ -36,7 +36,6 @@ class RedditConfigWindow(gtk.Window):
 		self.set_modal(True)
 		self.set_resizable(False)
 		self.set_icon_from_file(os.path.abspath(REDDIT_ICON))
-		self.connect('delete-event', self.on_cancel)
 		
 		vbox = gtk.VBox(homogeneous=False, spacing=6)
 		vbox.set_border_width(6)
