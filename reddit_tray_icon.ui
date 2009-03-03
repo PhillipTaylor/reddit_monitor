@@ -51,6 +51,7 @@
                   <object class="GtkEntry" id="username_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <signal name="changed" handler="on_entry_changed"/>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -62,6 +63,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="visibility">False</property>
+                    <signal name="changed" handler="on_entry_changed"/>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
