@@ -327,7 +327,14 @@ def run():
 
 		except ImportError:
 			pass
+
+	# If you got your credentials wrong
+	# and they've gone into gnome-keyring
+	# but you want to change them, uncomment
+	# this line to force the config window open
 	
+	#user_details_found=True
+
 	if not user_details_found:
 		#show dialog
 
