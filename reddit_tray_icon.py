@@ -15,9 +15,15 @@ import reddit
 REDDIT_ICON            = 'icons/reddit.png'
 NEW_MAIL_ICON          = 'icons/new_mail.png'
 BUSY_ICON              = 'icons/busy.gif'
+
+# If you enter your password here
+# it will skip the prompt. However I recommend
+# you take advantage of gnome-keyring by leaving
+# this alone and following the onscreen advice
 DEFAULT_USERNAME       = ''
 DEFAULT_PASSWORD       = '' #obvious security flaw if you fill this in.
 DEFAULT_CHECK_INTERVAL = 10 #minutes
+
 REDDIT_INBOX_USER_URL  = 'http://www.reddit.com/message/inbox'
 
 class RedditConfigWindow(gtk.Window):
@@ -84,6 +90,14 @@ class RedditConfigWindow(gtk.Window):
 			self.get_pynotify = gtk.Label('With pynotify you can have pop-up notifications!')
 			vbox.pack_start(self.get_pynotify)
 
+		if 'gnome-keyring' in features:
+			self.keyring = gtk.CheckButton(label='Save to gnome-keyring and don\'t ask again')
+			self.keyring.set_active(True)
+			vbox.pack_start(self.keyring)
+		else:
+			self.get_keyring = gtk.Label('With gnome-keyring you can skip this step securely')
+			vbox.pack_start(self.get_keyring)
+
 		bbox = gtk.HButtonBox()
 		bbox.set_layout(gtk.BUTTONBOX_END)
 		bbox.set_spacing(8)
@@ -128,6 +142,12 @@ class RedditConfigWindow(gtk.Window):
 	def get_notifications(self):
 		if 'pynotify' in self.features:
 			return self.notify.get_active()
+		else:
+			return False
+
+	def get_keyring_save(self):
+		if 'gnome-keyring' in self.features:
+			return self.keyring.get_active()
 		else:
 			return False
 
@@ -212,7 +232,7 @@ class RedditTrayIcon():
 
 		self.tray_icon.set_from_pixbuf(self.busy_icon)
 		self.menu.hide_all()
-		
+
 		while gtk.events_pending():
 			gtk.main_iteration(True)
 
@@ -269,16 +289,79 @@ def run():
 		if os.path.exists(os.path.join(path, 'xdg-open')):
 			features.append('xdg-open')
 
-	cfg_dlg = RedditConfigWindow(features)
+	# If they hard code their credentials into the
+	# top of this file.
+	if DEFAULT_USERNAME != '' and DEFAULT_PASSWORD != '':
+		user_details_found = True
+		username = DEFAULT_USERNAME
+		password = DEFAULT_PASSWORD
+		interval = DEFAULT_CHECK_INTERVAL
+	else:
+		user_details_found = False
 
-	if not cfg_dlg.get_notifications():
-		pynotify = None	
+	# Can we read the credentials from gnome-keyring?
+	if not user_details_found:
 
+		try:
+			import gnomekeyring as kr
+
+			features.append('gnome-keyring')
+
+			try:
+
+				matching_cred = kr.find_items_sync(
+					kr.ITEM_GENERIC_SECRET,
+					{ 'app_ident' : 'reddit_monitor' }
+				)
+
+				#stored username and password :-)
+				if len(matching_cred) > 0:
+
+					user_details_found = True
+					username = matching_cred[0].attributes['username']
+					password = matching_cred[0].secret
+					interval = int(matching_cred[0].attributes['interval'])
+
+			except kr.NoMatchError:
+				pass
+
+		except ImportError:
+			pass
+	
+	if not user_details_found:
+		#show dialog
+
+		cfg_dlg = RedditConfigWindow(features)
+
+		username = cfg_dlg.get_username()
+		password = cfg_dlg.get_password()
+		interval = cfg_dlg.get_interval()
+
+		if not cfg_dlg.get_notifications():
+			pynotify = None
+
+		# save password entered to gnome keyring
+		if cfg_dlg.get_keyring_save():
+
+			kr.item_create_sync(
+				kr.get_default_keyring_sync(),
+				kr.ITEM_GENERIC_SECRET,
+				'reddit_monitor',
+				{
+					'app_ident' : 'reddit_monitor',
+					'username'  : username,
+					'interval'  : str(interval)
+				},
+				password,
+				True
+			)
+
+	#show the tray icon
 	tray_icon = RedditTrayIcon(
 		features,
-		cfg_dlg.get_username(),
-		cfg_dlg.get_password(),
-		int(cfg_dlg.get_interval()) * 60000,
+		username,
+		password,
+		interval * 60000,
 		pynotify
 	)
 
