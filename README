@@ -13,7 +13,12 @@ http://github.com/PhillipTaylor/reddit_monitor/blob/0364546e605ce73c9b3fc25d8dc0
 The requirements for this application are:
 -	Systems that use GTK
 -	Python 2.x
+-	simplejson python module
 
+--OPTIONAL FEATURES--
+-	pynotify, for nicer pop-ups
+-	gnome-python2-gnomekeyring for secure password convenience.
+-	xdg-open guesses your prefer browser more accurately.
 
 
 --DOWNLOADING--
@@ -91,6 +96,10 @@ GNU GPL version 3
 --TESTED AGAINST--
 Fedora 9, GNOME, x86_64
 Fedora 10, KDE 4+, 32 bit
+Fedora 11, GNOME, x86_64
+Fedora 11, Awesome, x86_64
+Debian Sid, GNOME, i586
+Debian Sid, Awesome, i586
 
 
 
