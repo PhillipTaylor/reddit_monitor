@@ -32,7 +32,7 @@ class Reddit:
 	def __init__(self):
 
 		#regex to extract karma + comment karma.
-		self.karma_re = re.compile('<b>(\d+)</b></li><li>comment karma: &#32;<b>(\d+)</b>')
+		self.karma_re = re.compile('<b>(\d+)</b></li><li class="comment-karma">comment karma: &#32;<b>(\d+)</b>')
 
 		#Because the login is an ajax post before we need cookies.
 		#That's what made this code annoying to write.
