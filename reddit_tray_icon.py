@@ -368,7 +368,7 @@ def run():
 		features,
 		username,
 		password,
-		interval * 60000,
+		int(interval) * 60000,
 		pynotify
 	)
 
