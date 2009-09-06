@@ -15,7 +15,7 @@ import datetime
 
 REDDIT_USER_AGENT = { 'User-agent': 'Mozilla/4.0 (compatible; MSIE5.5; Windows NT' }
 REDDIT_LOGIN_URL = 'http://www.reddit.com/api/login'
-REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json&mark=false'
+REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json'
 REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/about.json'
 
 class RedditNotLoggedInException:
@@ -112,9 +112,17 @@ class Reddit:
 
 	def get_new_mail(self):
 
-		profile_page_to_fetch = REDDIT_INBOX_PAGE
+		params = urllib.urlencode({
+			'mark' : 'false'
+		})
+
+		profile_page_to_fetch = '%s?%s' % (
+			REDDIT_INBOX_PAGE,
+			params
+		)
 
 		try:
+
 			req = self.Request(profile_page_to_fetch, None, REDDIT_USER_AGENT)
 			json_data = self.urlopen(req).read()
 
