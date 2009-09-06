@@ -15,7 +15,7 @@ import datetime
 
 REDDIT_USER_AGENT = { 'User-agent': 'Mozilla/4.0 (compatible; MSIE5.5; Windows NT' }
 REDDIT_LOGIN_URL = 'http://www.reddit.com/api/login'
-REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json'
+REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json&mark=false'
 REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/about.json'
 
 class RedditNotLoggedInException:
