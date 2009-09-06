@@ -11,18 +11,12 @@ import getpass
 import sys
 import re
 import simplejson
+import datetime
 
 REDDIT_USER_AGENT = { 'User-agent': 'Mozilla/4.0 (compatible; MSIE5.5; Windows NT' }
 REDDIT_LOGIN_URL = 'http://www.reddit.com/api/login'
 REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json'
-REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/'
-
-#Notes:
-#1. Could have better exception handling (i.e. some for 404, wrong password, other basic things)
-#2. Could possibly save cookie and reuse it later (no password question on load).
-#3. Known bug. If you write a comment on reddit about the regex's this page uses you inadvertantly
-#   trick it. (e.g. put /static/mailgrey/png) in a comment and it will wrongly think you have no new
-#   mail.
+REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/about.json'
 
 class RedditNotLoggedInException:
 	pass
@@ -30,9 +24,6 @@ class RedditNotLoggedInException:
 class Reddit:
 
 	def __init__(self):
-
-		#regex to extract karma + comment karma.
-		self.karma_re = re.compile('<b>(\d+)</b></li><li class="comment-karma">comment karma: &#32;<b>(\d+)</b>')
 
 		#Because the login is an ajax post before we need cookies.
 		#That's what made this code annoying to write.
@@ -103,17 +94,20 @@ class Reddit:
 
 		try:
 			req = self.Request(profile_page_to_fetch, None, REDDIT_USER_AGENT)
-			page_contents = self.urlopen(req).read()			
+			json_data = self.urlopen(req).read()			
 
 		except Exception, e:
 			print 'Error is related to reading a profile page: %s', e.message
 			raise e
 
-		results = self.karma_re.search(page_contents)
-		karma = int(results.group(1))
-		comment_karma = int(results.group(2))
+		profile_info = simplejson.loads(json_data)
 
-		return (karma, comment_karma)
+		karma         = profile_info['data']['link_karma']
+		comment_karma = profile_info['data']['comment_karma']
+		created       = datetime.datetime.fromtimestamp(profile_info['data']['created_utc'])
+		days          = (datetime.datetime.now() - created).days
+
+		return (karma, comment_karma, days)
 
 
 	def get_new_mail(self):
@@ -168,8 +162,13 @@ def run():
 		Red.login(username, passwd)
 		print (len(Red.get_new_mail()) != 0)
 	else:
-		(karma, comment_karma) = Red.get_karma(username)
-		print 'User %s has %s karma and %s comment karma' % (username, karma, comment_karma)
+		(karma, comment_karma, days) = Red.get_karma(username)
+		print 'User %s has %s karma and %s comment karma. User for %s days' % (
+			username,
+			karma,
+			comment_karma,
+			days
+		)
 					
 
 def usage():
